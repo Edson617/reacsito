@@ -1,5 +1,6 @@
 import { Routes, Route, Link } from "react-router-dom";
 import Dashboard from "./Dashboard";
+import { registerPush } from "./pushManager";
 import "./App.css";
 
 function App() {
@@ -18,9 +19,11 @@ function App() {
           <Route
             path="/"
             element={
-              <div className="inicio">
+              <div className="inicio" style={{ textAlign: "center", marginTop: "40px" }}>
                 <h1>Bienvenido</h1>
                 <p>Selecciona una opción del menú superior para continuar.</p>
+                <h2>PWA con Push Notifications 🔔</h2>
+                <button onClick={registerPush}>Activar notificaciones</button>
               </div>
             }
           />

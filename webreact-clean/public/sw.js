@@ -161,3 +161,46 @@ async function syncPendingPosts() {
   await clearPendingPosts();
   console.log("[SW] Todos los POST reenviados y limpiados de IndexedDB ✅");
 }
+
+// ----------------------
+// PUSH NOTIFICATIONS 🔔
+// ----------------------
+
+// Escucha el evento 'push' (cuando el servidor envía una notificación)
+self.addEventListener("push", (event) => {
+  console.log("[SW] Notificación push recibida 📩", event);
+
+  let data = {};
+  if (event.data) {
+    data = event.data.json();
+  }
+
+  const title = data.title || "Nueva notificación";
+  const options = {
+    body: data.body || "Tienes un nuevo mensaje.",
+    icon: "/icons/icon-192x192.png",
+    badge: "/icons/icon-72x72.png",
+    data: { url: data.url || "/" },
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// Cuando el usuario hace clic en la notificación
+self.addEventListener("notificationclick", (event) => {
+  console.log("[SW] Notificación clickeada:", event.notification);
+  event.notification.close();
+
+  event.waitUntil(
+    self.clients.matchAll({ type: "window" }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url === event.notification.data.url && "focus" in client) {
+          return client.focus();
+        }
+      }
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(event.notification.data.url);
+      }
+    })
+  );
+});
